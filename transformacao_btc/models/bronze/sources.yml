@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: supabase_bronze     # Nome interno que usaremos no dbt
+    database: postgres        # Nome do banco
+    schema: public            # Schema onde o Python gravou
+    tables:
+      - name: bronze_bitcoin  # Nome exato da tabela no banco
