@@ -1,0 +1,58 @@
+name: Pipeline Bitcoin BTC
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+env:
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASS: ${{ secrets.DB_PASS }}
+  DB_NAME: ${{ secrets.DB_NAME }}
+  DB_PORT: 6543
+
+jobs:
+  etl_pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Baixar Repositório
+        uses: actions/checkout@v3
+
+      - name: 🐍 Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: 📦 Instalar Dependências
+        run: |
+          pip install requests psycopg2-binary python-dotenv dbt-postgres
+
+      - name: 🚀 Rodar Ingestão (Bronze)
+        run: |
+          python ingestao_bronze.py
+
+      - name: ⚙️ Configurar dbt (Profile Seguro)
+        run: |
+          mkdir -p ~/.dbt
+          echo "
+          transformacao_btc:
+            target: prod
+            outputs:
+              prod:
+                type: postgres
+                host: $DB_HOST
+                user: $DB_USER
+                password: $DB_PASS
+                dbname: $DB_NAME
+                port: 6543
+                schema: silver
+                threads: 1
+          " > ~/.dbt/profiles.yml
+
+      - name: 🏗️ Rodar Transformação (Silver)
+        run: |
+          cd transformacao_btc
+          dbt deps
+          dbt run --profiles-dir ~/.dbt
