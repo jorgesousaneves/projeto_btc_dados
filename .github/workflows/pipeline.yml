@@ -51,7 +51,7 @@ jobs:
                 threads: 1
           " > ~/.dbt/profiles.yml
 
-      - name: 🏗️ Rodar Transformação (Silver)
+      - name: 🏗️ Rodar Transformação (Silver/Gold)
         run: |
           cd transformacao_btc
           dbt deps
