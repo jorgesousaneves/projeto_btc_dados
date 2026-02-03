@@ -1,4 +1,6 @@
 .env
+.pdf
+.docx
 venv/
 __pycache__/
 target/
