@@ -59,18 +59,3 @@ O projeto conta com um workflow de **Integração e Entrega Contínua** configur
     3.  Injeção segura de credenciais (Secrets).
     4.  Execução do Script Python (Ingestão).
     5.  Execução do dbt (Transformação Silver/Gold).
-
----
-
-## Como Rodar Localmente
-
-Siga os passos abaixo para clonar e executar o projeto na sua máquina:
-
-### Pré-requisitos
-* Python 3.10+
-* Git
-
-### 1. Clonar o Repositório
-```bash
-git clone [https://github.com/jorgesousaneves/projeto_btc_dados.git](https://github.com/jorgesousaneves/projeto_btc_dados.git)
-cd projeto_btc_dados
