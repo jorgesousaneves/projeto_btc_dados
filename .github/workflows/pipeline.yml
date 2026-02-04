@@ -2,7 +2,8 @@ name: Pipeline Bitcoin BTC
 
 on:
   schedule:
-    - cron: '0 9 * * *' 
+    - cron: '0 9 * * *'
+  workflow_dispatch:      
 
 env:
   DB_HOST: ${{ secrets.DB_HOST }}
