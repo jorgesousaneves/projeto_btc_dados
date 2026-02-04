@@ -2,8 +2,7 @@ name: Pipeline Bitcoin BTC
 
 on:
   schedule:
-    - cron: '0 9 * * *'
-  workflow_dispatch:
+    - cron: '0 9 * * *' 
 
 env:
   DB_HOST: ${{ secrets.DB_HOST }}
@@ -11,6 +10,7 @@ env:
   DB_PASS: ${{ secrets.DB_PASS }}
   DB_NAME: ${{ secrets.DB_NAME }}
   DB_PORT: 6543
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
 
 jobs:
   etl_pipeline:
@@ -25,9 +25,10 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: 📦 Instalar Dependências
+      - name: 📦 Instalar Dependências (Gerais + IA)
         run: |
           pip install requests psycopg2-binary python-dotenv dbt-postgres
+          pip install pandas sqlalchemy google-generativeai
 
       - name: 🚀 Rodar Ingestão (Bronze)
         run: |
@@ -56,3 +57,6 @@ jobs:
           cd transformacao_btc
           dbt deps
           dbt run --profiles-dir ~/.dbt
+
+      - name: 🧠 Rodar Análise de IA
+        run: python analyse.ia.py
