@@ -21,16 +21,28 @@ def get_db_connection():
         print(f"❌ Erro ao conectar no banco: {e}")
         raise e
 
+def criar_tabela_bronze(cursor):
+    """Garante que a tabela existe antes de tentarmos usar."""
+    query_create = """
+    CREATE TABLE IF NOT EXISTS public.bronze_bitcoin (
+        id SERIAL PRIMARY KEY,
+        coin_id VARCHAR(50),
+        price_usd NUMERIC(18,8),
+        updated_at TIMESTAMP WITH TIME ZONE UNIQUE,
+        ingestion_at TIMESTAMP WITH TIME ZONE
+    );
+    """
+    cursor.execute(query_create)
+
 def obter_ultima_data_banco(cursor):
     """Consulta via SQL qual a data mais recente salva."""
     try:
-        query = "SELECT updated_at FROM bronze_bitcoin ORDER BY updated_at DESC LIMIT 1;"
+        query = "SELECT updated_at FROM public.bronze_bitcoin ORDER BY updated_at DESC LIMIT 1;"
         cursor.execute(query)
         result = cursor.fetchone()
         
         if result:
             dt = result[0] 
-        
             if dt.tzinfo is None:
                 dt = dt.replace(tzinfo=timezone.utc)
             return dt
@@ -46,6 +58,9 @@ def ingestao_bronze():
     cursor = conn.cursor()
 
     try:
+        criar_tabela_bronze(cursor)
+        conn.commit() 
+        
         ultima_data = obter_ultima_data_banco(cursor)
         
         dias_para_buscar = "365"
@@ -90,8 +105,9 @@ def ingestao_bronze():
             print(f"🚀 Inserindo {total_novos} novos registros...")
             
             query_insert = """
-            INSERT INTO bronze_bitcoin (coin_id, price_usd, updated_at, ingestion_at)
+            INSERT INTO public.bronze_bitcoin (coin_id, price_usd, updated_at, ingestion_at)
             VALUES (%s, %s, %s, %s)
+            ON CONFLICT (updated_at) DO NOTHING
             """
             
             cursor.executemany(query_insert, novos_dados)
