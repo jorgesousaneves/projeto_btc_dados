@@ -2,10 +2,8 @@ name: 'transformacao_btc'
 version: '1.0.0'
 config-version: 2
 
-# Este nome deve bater com o do profiles.yml
 profile: 'transformacao_btc'
 
-# Onde estão seus modelos (SQLs)
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
@@ -18,18 +16,16 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
-# Configurações das pastas
 models:
   transformacao_btc:
     gold:
       +materialized: table
       +schema: gold
-      # Aplica configurações para a pasta 'silver'
+
     silver:
       +materialized: view
       +schema: silver
     
-    # Aplica configurações para a pasta 'bronze' (se tiver models lá)
     bronze:
       +materialized: view
       +schema: bronze

@@ -8,5 +8,5 @@ transformacao_btc:
       password: "{{ env_var('DB_PASS') }}"
       dbname: "{{ env_var('DB_NAME') }}"
       port: 6543
-      schema: silver
+      schema: public
       threads: 1
