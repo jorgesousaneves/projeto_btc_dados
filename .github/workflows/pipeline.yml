@@ -49,7 +49,7 @@ jobs:
                 password: $DB_PASS
                 dbname: $DB_NAME
                 port: 6543
-                schema: silver
+                schema: public
                 threads: 1
           " > ~/.dbt/profiles.yml
 

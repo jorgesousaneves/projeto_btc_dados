@@ -3,6 +3,6 @@ version: 2
 sources:
   - name: supabase_bronze     
     database: postgres        
-    schema: public            
+    schema: public_bronze            
     tables:
       - name: bronze_bitcoin 

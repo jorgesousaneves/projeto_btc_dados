@@ -7,7 +7,6 @@ from datetime import datetime, timezone
 load_dotenv()
 
 def get_db_connection():
-    """Cria a conexão com o banco usando as variáveis do .env"""
     try:
         conn = psycopg2.connect(
             host=os.getenv("DB_HOST"),
@@ -22,9 +21,12 @@ def get_db_connection():
         raise e
 
 def criar_tabela_bronze(cursor):
-    """Garante que a tabela existe antes de tentarmos usar."""
+    """
+    Garante que a tabela existe no schema public_bronze.
+    Nota: O schema 'public_bronze' já deve ter sido criado via SQL no Supabase.
+    """
     query_create = """
-    CREATE TABLE IF NOT EXISTS public.bronze_bitcoin (
+    CREATE TABLE IF NOT EXISTS public_bronze.bronze_bitcoin (
         id SERIAL PRIMARY KEY,
         coin_id VARCHAR(50),
         price_usd NUMERIC(18,8),
@@ -35,9 +37,8 @@ def criar_tabela_bronze(cursor):
     cursor.execute(query_create)
 
 def obter_ultima_data_banco(cursor):
-    """Consulta via SQL qual a data mais recente salva."""
     try:
-        query = "SELECT updated_at FROM public.bronze_bitcoin ORDER BY updated_at DESC LIMIT 1;"
+        query = "SELECT updated_at FROM public_bronze.bronze_bitcoin ORDER BY updated_at DESC LIMIT 1;"
         cursor.execute(query)
         result = cursor.fetchone()
         
@@ -59,7 +60,7 @@ def ingestao_bronze():
 
     try:
         criar_tabela_bronze(cursor)
-        conn.commit() 
+        conn.commit()
         
         ultima_data = obter_ultima_data_banco(cursor)
         
@@ -84,19 +85,14 @@ def ingestao_bronze():
         print(f"📦 Registros retornados pela API: {len(precos)}")
         
         novos_dados = []
-        
         for registro in precos:
             timestamp_ms = registro[0]
             valor_usd = registro[1]
-            
             data_registro = datetime.fromtimestamp(timestamp_ms / 1000, tz=timezone.utc)
             
             if ultima_data is None or data_registro > ultima_data:
                 novos_dados.append((
-                    "bitcoin", 
-                    valor_usd, 
-                    data_registro, 
-                    datetime.now(timezone.utc)
+                    "bitcoin", valor_usd, data_registro, datetime.now(timezone.utc)
                 ))
 
         total_novos = len(novos_dados)
@@ -105,17 +101,15 @@ def ingestao_bronze():
             print(f"🚀 Inserindo {total_novos} novos registros...")
             
             query_insert = """
-            INSERT INTO public.bronze_bitcoin (coin_id, price_usd, updated_at, ingestion_at)
+            INSERT INTO public_bronze.bronze_bitcoin (coin_id, price_usd, updated_at, ingestion_at)
             VALUES (%s, %s, %s, %s)
             ON CONFLICT (updated_at) DO NOTHING
             """
-            
             cursor.executemany(query_insert, novos_dados)
             conn.commit()
-            
-            print("✅ SUCESSO! Carga concluída.")
+            print("✅ SUCESSO! Carga concluída na public_bronze.")
         else:
-            print("✅ Banco já atualizado. Nenhum dado novo para inserir.")
+            print("✅ Banco já atualizado.")
 
     except Exception as e:
         conn.rollback() 
