@@ -1,69 +1,103 @@
-# 🪙 Bitcoin Data Pipeline | End-to-End Engineering + AI Analytics
+# Bitcoin Data Pipeline — End-to-End Engineering + AI Analytics
 
 ![Status](https://img.shields.io/badge/Status-Production-green)
-![Python](https://img.shields.io/badge/Python-3.10-blue)
-![dbt](https://img.shields.io/badge/dbt-Core-orange)
-![GenAI](https://img.shields.io/badge/GenAI-Gemini%202.5-magenta)
-![CI/CD](https://img.shields.io/badge/GitHub-Actions-black)
+![Stack](https://img.shields.io/badge/Python-3.10-blue)
+![Stack](https://img.shields.io/badge/dbt_Core-Medallion_Architecture-orange)
+![Stack](https://img.shields.io/badge/GenAI-Claude_Sonnet-magenta)
+![Stack](https://img.shields.io/badge/CI/CD-GitHub_Actions-black)
 
-##  Sobre o Projeto
+> "Dado bom é dado que gera decisão. IA boa é IA que gera decisão mais rápido."
 
-Este projeto consiste em um pipeline de Engenharia de Dados completo (**End-to-End**) desenvolvido para ingerir, armazenar e transformar dados históricos do mercado de criptomoedas (Bitcoin), finalizando com uma camada de **Inteligência Artificial** para análise técnica automatizada.
-
-O objetivo principal foi construir uma arquitetura resiliente, segura e automatizada, simulando um ambiente corporativo real que vai desde a coleta do dado bruto até a geração de insights via LLM (Large Language Model).
+Pipeline ELT completo com **Arquitetura Medallion** integrando ingestão via API, transformações em dbt Core, CI/CD automatizado via GitHub Actions e um módulo de **IA Generativa** que atua como estrategista sênior de cripto — analisando médias móveis, momentum e volatilidade para emitir veredito técnico automático sobre o Bitcoin.
 
 ---
 
-##  Arquitetura e Design
+## Resultado — Dashboard Power BI
 
-O projeto expande a **Arquitetura Medalhão** (Medallion Architecture), adicionando uma camada de inteligência analítica ao final do fluxo:
+<img width="845" height="841" alt="Image" src="https://github.com/user-attachments/assets/c3d4b823-f62a-40f0-93c7-317a1fcd8d2f" />
 
-### 1. Ingestão (Bronze)
-* **Fonte:** API CoinGecko.
-* **Tecnologia:** Python (Script customizado com `requests` e `psycopg2`).
-* **Estratégia:** Carga Incremental (Stateful Loading). O script verifica a última data no banco (`max_date`) e busca apenas os novos registros (D-1), evitando duplicidade e consumo desnecessário da API.
-* **Armazenamento:** PostgreSQL (Raw Data).
-
-### 2. Transformação (Silver)
-* **Tecnologia:** dbt (Data Build Tool).
-* **Processos:** Limpeza de dados, tipagem forte (casting), deduplicação e tratamento de nulos.
-* **Qualidade:** Testes automatizados (`schema tests`) para garantir unicidade e integridade referencial.
-
-### 3. Modelagem (Gold)
-* **Tecnologia:** dbt.
-* **Foco:** Tabela agregada e otimizada para Business Intelligence (BI) e consumo da IA.
-* **KPIs Calculados:** Médias Móveis (7 e 30 dias), volatilidade e variação percentual diária.
-
-### 4. Inteligência (AI Analytics) 
-* **Tecnologia:** Google Gemini 2.5 (Via Python SDK).
-* **Processo:** Um agente de IA lê os indicadores calculados na camada Gold e atua como um "Estrategista Sênior de Cripto".
-* **Output:** A IA analisa cruzamento de médias e momentum para gerar um veredito textual (Compra/Venda/Neutro) e uma explicação técnica do cenário atual.
+| Indicador | Valor Atual |
+|---|---|
+| Último Preço (BTC/USD) | $82.670 |
+| Variação Diária | -7,28% |
+| Média Móvel 7d (MMS_7d) | Calculada diariamente via dbt |
+| Média Móvel 30d (MMS_30d) | Calculada diariamente via dbt |
 
 ---
 
-## Tech Stack
+## Arquitetura — Medallion com IA na camada final
 
-| Categoria | Tecnologia | Detalhes |
-| :--- | :--- | :--- |
-| **Linguagem** | **Python 3.10** | Scripts de ingestão e orquestração do módulo de IA. |
-| **Generative AI** | **Google Gemini 2.5** | Modelo Flash para análise de indicadores financeiros (Prompt Engineering). |
-| **Banco de Dados** | **PostgreSQL 15** | Hospedado na nuvem (Supabase) via Pooler (Port 6543). |
-| **Transformação** | **dbt Core** | Orquestração de SQL, testes e documentação de linhagem. |
-| **Automação (CI/CD)** | **GitHub Actions** | Pipeline YAML configurado para execução diária (CRON). |
-| **Infraestrutura** | **Cloud Native** | Ambiente Serverless e execução em containers Ubuntu. |
-| **Segurança** | **GitHub Secrets** | Credenciais gerenciadas via variáveis de ambiente (`.env`). |
+Pipeline estruturado em quatro camadas. As três primeiras seguem a Arquitetura Medallion padrão. A quarta adiciona inteligência analítica automatizada via LLM.
+
+```mermaid
+graph LR
+    A[CoinGecko API] -->|Python · Carga Incremental| B[(Bronze\nRaw Data · PostgreSQL)]
+    B -->|dbt · Limpeza · Testes| C[(Silver\nDados Confiáveis)]
+    C -->|dbt · KPIs · Médias Móveis| D[(Gold\nmart_bitcoin_indicadores)]
+    D -->|LLM API · Prompt Engineering| E[AI Analytics\nVeredito Técnico Automático]
+    D -->|Power BI| F[Dashboard\nVisualização]
+
+    style B fill:#cd7f32,stroke:#333,stroke-width:2px,color:#fff
+    style C fill:#c0c0c0,stroke:#333,stroke-width:2px,color:#333
+    style D fill:#ffd700,stroke:#333,stroke-width:2px,color:#333
+    style E fill:#4a0080,stroke:#333,stroke-width:2px,color:#fff
+```
+
+**Bronze — Ingestão Incremental**
+Coleta de dados históricos do Bitcoin via API CoinGecko com estratégia de Stateful Loading: o script verifica a última data no banco (`max_date`) e busca apenas os registros novos (D-1), evitando duplicidade e consumo desnecessário da API. Armazenamento em PostgreSQL hospedado no Supabase via Pooler (porta 6543).
+
+**Silver — Camada Confiável**
+Transformações em dbt Core: limpeza, tipagem forte (casting), deduplicação e tratamento de nulos. Testes automatizados de schema garantem unicidade e integridade referencial antes de qualquer dado chegar à camada analítica.
+
+**Gold — Camada Analítica**
+Tabela `mart_bitcoin_indicadores` com KPIs calculados via dbt: Médias Móveis de 7 e 30 dias (MMS_7d e MMS_30d), volatilidade histórica e variação percentual diária. Otimizada para consumo simultâneo pelo Power BI e pelo módulo de IA.
+
+**AI Analytics — Inteligência Generativa**
+O módulo de IA lê os indicadores calculados na camada Gold e atua como estrategista sênior de cripto. A LLM analisa cruzamento de médias móveis, momentum e regime de volatilidade para gerar um veredito textual estruturado (Compra / Venda / Neutro) com justificativa técnica completa — entregue automaticamente a cada execução do pipeline.
 
 ---
 
-## CI/CD e Automação
+## CI/CD — Pipeline Automatizado
 
-O projeto conta com um workflow de **Integração e Entrega Contínua** configurado no GitHub Actions, garantindo que o dado e a análise estejam sempre atualizados:
+Workflow completo no GitHub Actions com execução diária e gatilho manual:
 
-* **Trigger:** Execução programada (Schedule) todos os dias às 09:00 UTC e gatilho manual (`workflow_dispatch`).
-* **Steps do Pipeline:**
-    1.  Provisionamento de ambiente Linux (Ubuntu Latest).
-    2.  Instalação de dependências (`requirements.txt`).
-    3.  Injeção segura de credenciais (Secrets).
-    4.  **Ingestão:** Execução do script Python (API -> Bronze).
-    5.  **Transformação:** Execução do dbt (Bronze -> Silver -> Gold).
-    6.  **Inteligência:** Execução do Agente de IA (Leitura da Gold -> Relatório Gemini).
+```yaml
+Trigger: Schedule 09:00 UTC + workflow_dispatch
+
+Steps:
+  1. Provisionamento Ubuntu Latest
+  2. Instalação de dependências (requirements.txt)
+  3. Injeção de credenciais via GitHub Secrets
+  4. Ingestão: Python → CoinGecko API → Bronze (PostgreSQL)
+  5. Transformação: dbt run + dbt test → Silver → Gold
+  6. Inteligência: LLM API → leitura da Gold → relatório automático
+```
+
+Credenciais gerenciadas exclusivamente via GitHub Secrets — nenhuma chave de API exposta no código.
+
+---
+
+## Decisões de Engenharia
+
+**Carga Incremental (Stateful Loading)**
+O script de ingestão verifica o `max_date` antes de cada execução. Isso elimina reprocessamento desnecessário, reduz consumo da API e mantém o pipeline eficiente mesmo com meses de histórico acumulado.
+
+**dbt como camada de transformação central**
+Toda a lógica de negócio — limpeza, deduplicação, cálculo de médias móveis e métricas de volatilidade — vive em SQL versionado no dbt, com testes automatizados e documentação de linhagem. Nenhuma transformação acontece fora do dbt.
+
+**LLM sobre a camada Gold**
+A IA não acessa dados brutos. Ela consome exclusivamente a camada Gold já validada e testada, garantindo que o veredito técnico seja baseado em dados confiáveis — não em ruído da Bronze.
+
+---
+
+## Stack
+
+Python · dbt Core · PostgreSQL · Supabase · CoinGecko API · GitHub Actions · LLM APIs · Power BI · SQL Avançado · Star Schema · Arquitetura Medallion · Prompt Engineering · CI/CD
+
+---
+
+## Sobre o Projeto
+
+Projeto desenvolvido como parte do portfólio de Analytics Engineering com foco em Modern Data Stack e IA aplicada a dados financeiros. A mesma arquitetura base deste pipeline está em operação em ambiente de produção na Faculdade IBRA, cobrindo dezenas de milhares de registros financeiros com entrega de relatórios executivos mensais gerados por IA diretamente para a diretoria.
+
+Portfólio completo: [github.com/jorgesousaneves](https://github.com/jorgesousaneves)
